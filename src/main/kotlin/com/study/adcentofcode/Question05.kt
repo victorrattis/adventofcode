@@ -1,14 +1,7 @@
 package com.study.adcentofcode
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.File
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class Question05 {
 
@@ -43,17 +36,11 @@ class Question05 {
     private fun findLocationNumber(seed: Long): Long {
         var source = "seed"
         var sourceValue = seed
-        var count = 0
         do {
             maps[source]?.let {
                 var destValue = it.calculate(sourceValue)
                 source = destValue.first
                 sourceValue = destValue.second
-            }
-            count++
-            if (count > 10) {
-                println("error!")
-                break
             }
         } while (source != "location")
         return sourceValue
