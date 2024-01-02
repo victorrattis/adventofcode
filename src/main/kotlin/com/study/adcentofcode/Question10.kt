@@ -1,6 +1,10 @@
 package com.study.adcentofcode
 
 import java.io.File
+import kotlin.math.abs
+
+import java.lang.Double.MAX_VALUE
+import java.lang.Double.MIN_VALUE
 
 typealias CharMatrix = Array<String>
 
@@ -9,21 +13,43 @@ data class Coordinate(val x: Int, val y: Int)
 class Question10 {
     fun execute(filePath: String, part2: Boolean = false): Long {
         val matrix = loadDataFromFile(filePath)
+        val path: MutableList<Coordinate> = mutableListOf() // it is used when part2 is true
+
         val start: Coordinate = findStartTitle(matrix)
+        var current = findPossiblePaths(matrix, start)[0]
+        var previous = start
 
-        var paths = findPossiblePaths(matrix, start)
-        var steps = 1L
-
-        var previous: List<Coordinate> = paths.map { start }
-
-        while (!paths.all { it == paths[0] }) {
-            paths = paths.mapIndexed { index, current ->
-                nextPosition(previous[index], matrix[current.x][current.y], current)
-            }.also { previous = paths }
-            steps++
+        if (part2) {
+            path.add(start)
+            path.add(current)
         }
 
-        return steps
+        var steps = 1L // It is used when part2 is false
+        while(current != start) {
+            current = nextPosition(previous, matrix[current.x][current.y], current).also { previous = current }
+            if (part2) path.add(current)
+            else steps++
+        }
+
+        return if (part2) {
+            val figure = createFigureFromPointPath(path)
+
+            var count = 0L
+            for (x in matrix.indices) {
+                val line = matrix[x]
+                for (y in line.indices) {
+                    if (!path.contains(Coordinate(x, y))) {
+                        if (Point(x.toDouble(), y.toDouble()) in figure) {
+                           count++
+                        }
+                    }
+                }
+            }
+
+            count
+        } else {
+            steps / 2
+        }
     }
 
     private fun nextPosition(previous: Coordinate, tileValue: Char, tile: Coordinate): Coordinate {
@@ -106,5 +132,41 @@ class Question10 {
             result.add(line)
         }
         return result.toTypedArray()
+    }
+
+    private fun createFigureFromPointPath(path: List<Coordinate>): Figure {
+        val pathEdge = mutableListOf<Edge>()
+        for (i in 0 until path.size - 1) {
+            pathEdge.add(Edge(path[i].toPoint(), path[i + 1].toPoint()))
+        }
+        return Figure(pathEdge.toTypedArray())
+    }
+
+    private fun Coordinate.toPoint(): Point = Point(x.toDouble(), y.toDouble())
+
+    // Ray Casting Algorithm ---
+    // reference: https://rosettacode.org/wiki/Ray-casting_algorithm#Kotlin
+    data class Point(val x: Double, val y: Double)
+
+    data class Edge(val s: Point, val e: Point) {
+        companion object {
+            const val EPSILON = 0.00001
+        }
+
+        operator fun invoke(p: Point) : Boolean = when {
+            s.y > e.y -> Edge(e, s).invoke(p)
+            p.y == s.y || p.y == e.y -> invoke(Point(p.x, p.y + EPSILON))
+            p.y > e.y || p.y < s.y || p.x > s.x.coerceAtLeast(e.x) -> false
+            p.x < s.x.coerceAtMost(e.x) -> true
+            else -> {
+                val blue = if (abs(s.x - p.x) > MIN_VALUE) (p.y - s.y) / (p.x - s.x) else MAX_VALUE
+                val red = if (abs(s.x - e.x) > MIN_VALUE) (e.y - s.y) / (e.x - s.x) else MAX_VALUE
+                blue >= red
+            }
+        }
+    }
+
+    class Figure(private val edges: Array<Edge>) {
+        operator fun contains(p: Point) = edges.count { it(p) } % 2 != 0
     }
 }
