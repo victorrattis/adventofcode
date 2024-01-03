@@ -70,23 +70,26 @@ class Question10 {
 
     fun executeParte2Optimized(filePath: String): Long {
         val matrix = loadDataFromFile(filePath)
-        val points = mutableListOf<Coordinate>()
+        var area = 0.0
+        var steps = 1L
 
         val start: Coordinate = findStartTile(matrix)
         var current = findPossibleFirstPath(matrix, start)
         var previous = start
 
-        points.add(start)
+        area += start.x * current.y - current.x * start.y
         var next: Coordinate
         while(current != start) {
             next = nextPosition(previous, matrix[current.x][current.y], current)
             previous = current
             current = next
-            points.add(previous)
+
+            area += previous.x * current.y - current.x * previous.y
+            steps++
         }
 
         // Calculate Are using shoelace formula and als use Pick's theorem
-        return shoelaceArea(points.toTypedArray()).toLong() - (points.size / 2) + 1
+        return (abs(area).toLong() / 2) - (steps / 2) + 1
     }
 
     private fun nextPosition(previous: Coordinate, tileValue: Char, tile: Coordinate): Coordinate {
