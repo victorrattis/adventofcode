@@ -11,45 +11,82 @@ typealias CharMatrix = Array<String>
 data class Coordinate(val x: Int, val y: Int)
 
 class Question10 {
-    fun execute(filePath: String, part2: Boolean = false): Long {
+    fun executeParte1(filePath: String): Long {
         val matrix = loadDataFromFile(filePath)
-        val path: MutableList<Coordinate> = mutableListOf() // it is used when part2 is true
-
-        val start: Coordinate = findStartTitle(matrix)
-        var current = findPossiblePaths(matrix, start)[0]
+        val start: Coordinate = findStartTile(matrix)
+        var current = findPossibleFirstPath(matrix, start)
         var previous = start
 
-        if (part2) {
-            path.add(start)
-            path.add(current)
-        }
-
-        var steps = 1L // It is used when part2 is false
+        var steps = 1L
         while(current != start) {
             current = nextPosition(previous, matrix[current.x][current.y], current).also { previous = current }
-            if (part2) path.add(current)
-            else steps++
+            steps++
         }
 
-        return if (part2) {
-            val figure = createFigureFromPointPath(path)
+        return steps / 2
+    }
 
-            var count = 0L
-            for (x in matrix.indices) {
-                val line = matrix[x]
-                for (y in line.indices) {
-                    if (!path.contains(Coordinate(x, y))) {
-                        if (Point(x.toDouble(), y.toDouble()) in figure) {
-                           count++
-                        }
+    fun executeParte2(filePath: String): Long {
+        val matrix = loadDataFromFile(filePath)
+        val lines = matrix.size
+        val column = matrix[0].length
+
+        val pathMatrix: Array<Array<Boolean>> = Array(lines) { Array(column) { false } }
+        val pathEdge = mutableListOf<Edge>()
+        val start: Coordinate = findStartTile(matrix)
+        var current = findPossibleFirstPath(matrix, start)
+        var previous = start
+
+        pathEdge.add(Edge(start.toPoint(), current.toPoint()))
+        pathMatrix[start.x][start.y] = true
+        pathMatrix[current.x][current.y] = true
+
+        while(current != start) {
+            current = nextPosition(previous, matrix[current.x][current.y], current).also { previous = current }
+            pathMatrix[current.x][current.y] = true
+            pathEdge.add(Edge(previous.toPoint(), current.toPoint()))
+        }
+
+        val figure = Figure(pathEdge.toTypedArray())
+
+        var count = 0L
+
+        val point = Point(0.0, 0.0)
+        for (x in 0 until lines) {
+            point.x = x.toDouble()
+            for (y in 0 until column) {
+                if (!pathMatrix[x][y]) {
+                    point.y = y.toDouble()
+                    if (figure.contains(point)) {
+                       count++
                     }
                 }
             }
-
-            count
-        } else {
-            steps / 2
         }
+
+        return count
+
+    }
+
+    fun executeParte2Optimized(filePath: String): Long {
+        val matrix = loadDataFromFile(filePath)
+        val points = mutableListOf<Coordinate>()
+
+        val start: Coordinate = findStartTile(matrix)
+        var current = findPossibleFirstPath(matrix, start)
+        var previous = start
+
+        points.add(start)
+        var next: Coordinate
+        while(current != start) {
+            next = nextPosition(previous, matrix[current.x][current.y], current)
+            previous = current
+            current = next
+            points.add(previous)
+        }
+
+        // Calculate Are using shoelace formula and als use Pick's theorem
+        return shoelaceArea(points.toTypedArray()).toLong() - (points.size / 2) + 1
     }
 
     private fun nextPosition(previous: Coordinate, tileValue: Char, tile: Coordinate): Coordinate {
@@ -64,37 +101,36 @@ class Question10 {
         }
     }
 
-    private fun findPossiblePaths(matrix: CharMatrix, start: Coordinate): List<Coordinate> {
-        val paths: MutableList<Coordinate> = mutableListOf()
+    private fun findPossibleFirstPath(matrix: CharMatrix, start: Coordinate): Coordinate {
         if (start.y < matrix[start.x].length - 1 && checkConnectionWithStartTile(
                 start,
                 matrix[start.x][start.y + 1],
                 Coordinate(start.x, start.y + 1)
             )) {
-            paths.add(Coordinate(start.x, start.y + 1))
+            return Coordinate(start.x, start.y + 1)
         }
         if (start.y > 0 && checkConnectionWithStartTile(
                 start,
                 matrix[start.x][start.y - 1],
                 Coordinate(start.x, start.y - 1)
             )) {
-            paths.add(Coordinate(start.x, start.y - 1))
+            return Coordinate(start.x, start.y - 1)
         }
         if (start.x > 0 && checkConnectionWithStartTile(
                 start,
                 matrix[start.x - 1][start.y],
                 Coordinate(start.x - 1, start.y)
             )) {
-            paths.add(Coordinate(start.x - 1, start.y))
+            return Coordinate(start.x - 1, start.y)
         }
         if(start.x < matrix.size -1 && checkConnectionWithStartTile(
                 start,
                 matrix[start.x + 1][start.y],
                 Coordinate(start.x + 1, start.y)
             )) {
-            paths.add(Coordinate(start.x + 1, start.y))
+            return Coordinate(start.x + 1, start.y)
         }
-        return paths.toList()
+        throw Exception("No Path!")
     }
 
     private fun checkConnectionWithStartTile(
@@ -113,7 +149,7 @@ class Question10 {
         else -> false
     }
 
-    private fun findStartTitle(matrix: CharMatrix): Coordinate {
+    private fun findStartTile(matrix: CharMatrix): Coordinate {
         for (x in matrix.indices) {
             val line = matrix[x]
             for (y in line.indices) {
@@ -128,29 +164,19 @@ class Question10 {
 
     private fun loadDataFromFile(filePath: String): CharMatrix {
         val result = mutableListOf<String>()
-        File(filePath).inputStream().bufferedReader().forEachLine { line ->
-            result.add(line)
-        }
+        File(filePath).inputStream().bufferedReader().forEachLine { result.add(it) }
         return result.toTypedArray()
-    }
-
-    private fun createFigureFromPointPath(path: List<Coordinate>): Figure {
-        val pathEdge = mutableListOf<Edge>()
-        for (i in 0 until path.size - 1) {
-            pathEdge.add(Edge(path[i].toPoint(), path[i + 1].toPoint()))
-        }
-        return Figure(pathEdge.toTypedArray())
     }
 
     private fun Coordinate.toPoint(): Point = Point(x.toDouble(), y.toDouble())
 
     // Ray Casting Algorithm ---
     // reference: https://rosettacode.org/wiki/Ray-casting_algorithm#Kotlin
-    data class Point(val x: Double, val y: Double)
+    private data class Point(var x: Double, var y: Double)
 
-    data class Edge(val s: Point, val e: Point) {
+    private data class Edge(val s: Point, val e: Point) {
         companion object {
-            const val EPSILON = 0.00001
+            const val EPSILON = 0.0001
         }
 
         operator fun invoke(p: Point) : Boolean = when {
@@ -166,7 +192,18 @@ class Question10 {
         }
     }
 
-    class Figure(private val edges: Array<Edge>) {
+    private class Figure(private val edges: Array<Edge>) {
         operator fun contains(p: Point) = edges.count { it(p) } % 2 != 0
+    }
+
+    // Shoelace formula for polygonal area ---
+    // reference: https://rosettacode.org/wiki/Shoelace_formula_for_polygonal_area#Kotlin
+    private fun shoelaceArea(points: Array<Coordinate>): Double {
+        val size = points.size
+        var area = 0.0
+        for (i in 0 until size - 1) {
+            area += points[i].x * points[i + 1].y - points[i + 1].x * points[i].y
+        }
+        return abs(area + points[size - 1].x * points[0].y - points[0].x * points[size -1].y) / 2
     }
 }

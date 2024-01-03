@@ -60,7 +60,6 @@ class Question01 {
                         val v = numberMap[item.first]
                         if (first == null) first = v
                         else second = v
-                        false
                     }
                     true
                 } as MutableList
