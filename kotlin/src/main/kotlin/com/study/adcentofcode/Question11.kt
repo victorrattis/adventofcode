@@ -7,23 +7,26 @@ class Question11 {
     fun execute(filePath: String, expansion: Int = 2): Long {
         val space = loadDataFromFile(filePath)
         val galaxies = findGalaxies(space, expansion-1)
-        return calculatePairDistances(galaxies)
+        return calculateAllShortestDistances(galaxies)
     }
 
-    private fun calculatePairDistances(galaxies: Array<Galaxy>): Long {
+    private fun calculateAllShortestDistances(
+        galaxies: Array<Galaxy>
+    ): Long {
         var sum = 0L
         for (i in 0 until galaxies.size - 1) {
             for (j in i + 1 until galaxies.size) {
-                val a = galaxies[i]
-                val b = galaxies[j]
-                val distance = abs(a.x - b.x) + abs(a.y - b.y)
-                sum += distance
+                sum += abs(galaxies[i].x - galaxies[j].x) +
+                        abs(galaxies[i].y - galaxies[j].y)
             }
         }
         return sum
     }
 
-    private fun findGalaxies(space: Array<String>, expansion: Int = 1): Array<Galaxy> {
+    private fun findGalaxies(
+        space: Array<String>,
+        expansion: Int = 1
+    ): Array<Galaxy> {
         val markedLine = Array (space.size) { false }
         val markedColumn = Array (space[0].length) { false }
 
@@ -40,18 +43,21 @@ class Question11 {
 
         // calculate space expansion
         var acc = 0
-        val weightLine = markedLine.map { if (it) acc else {
-            acc += expansion
+        val weightLine = markedLine.map { hasGalaxy ->
+            if (!hasGalaxy) acc += expansion
             acc
-        } }
+        }
         acc = 0
-        val weightColumn = markedColumn.map { if (it) acc else {
-            acc += expansion
+        val weightColumn = markedColumn.map { hasGalaxy ->
+            if (!hasGalaxy) acc += expansion
             acc
-        } }
+        }
 
         return galaxies.map {
-            it.copy(x = it.x + weightLine[it.x], y = it.y + weightColumn[it.y])
+            it.copy(
+                x = it.x + weightLine[it.x],
+                y = it.y + weightColumn[it.y]
+            )
         }.toTypedArray()
     }
 
