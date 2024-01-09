@@ -7,7 +7,7 @@ class Question12 {
 
     fun execute(filePath: String, repeat: Int = 1): Long {
         val lines = loadDataFromFile(filePath)
-//        calculateArrangement(lines[0], 5)
+//        calculateArrangement(lines[5], 1)
 //        return 0L
 
         return lines.fold(0L) { acc, line ->
@@ -36,6 +36,7 @@ class Question12 {
         }
 
         combineAllPossibilities(text, groups.toTypedArray())
+        println("$text = ${combinations.size}")
         return combinations.size.toLong()
     }
 
@@ -68,13 +69,30 @@ class Question12 {
     private var combinations: MutableSet<String> = mutableSetOf()
 
     private fun checkCombination(text: String, groups: Array<Int>) {
-        val damages = text.split("\\.+".toRegex()).filter { it.isNotEmpty() }
-        if (damages.size == groups.size) {
-            var all = true
-            for (i in damages.indices) {
-                all = all && (damages[i].length == groups[i])
+
+        var index = 0
+        var count = 0
+        var all = true
+        for (tile in text) {
+            if (tile == '#') {
+                count++
+            } else if (tile == '.') {
+                if (count > 0) {
+                    val result = index < groups.size && count == groups[index]
+                    index++
+                    all = all && result
+                    count = 0
+                }
             }
-            if (all)
+        }
+
+        if (count > 0) {
+            val result = index < groups.size && count == groups[index]
+            index++
+            all = all && result
+        }
+
+        if (all && index == groups.size) {
             combinations.add(text)
         }
     }
