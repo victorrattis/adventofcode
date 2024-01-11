@@ -28,4 +28,13 @@ class Question12Test {
         )
         assertEquals(525152, result)
     }
+
+    @Test
+    fun checkPuzzlePart2() {
+        val result = Question12().execute(
+            "src/test/resources/question12.txt",
+            5
+        )
+        assertEquals(1672318386674, result)
+    }
 }
