@@ -5,9 +5,6 @@ import java.io.File
 class Question12 {
     fun execute(filePath: String, repeat: Int = 1): Long {
         val lines = loadDataFromFile(filePath)
-//        calculateArrangement(lines[5], 1)
-//        return 0L
-
         return lines.fold(0L) { acc, line ->
             acc + calculateArrangement(line, repeat)
         }
@@ -24,30 +21,34 @@ class Question12 {
             for (state in statesDict) {
                 if (char == '?') {
                     if (state.key + 1 < states.length) {
-                        newDict[state.key + 1] = (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
+                        newDict[state.key + 1] =
+                            (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
                     }
                     if (states[state.key] == '.') {
-                        newDict[state.key] = (newDict[state.key] ?: 0) + (statesDict[state.key] ?: 0)
+                        newDict[state.key] =
+                            (newDict[state.key] ?: 0) + (statesDict[state.key] ?: 0)
                     }
                 } else if (char == '.') {
                     if (state.key + 1 < states.length && states[state.key + 1] == '.') {
-                        newDict[state.key + 1] = (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
+                        newDict[state.key + 1] =
+                            (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
                     }
                     if (states[state.key] == '.') {
-                        newDict[state.key] = (newDict[state.key] ?: 0) + (statesDict[state.key] ?: 0)
+                        newDict[state.key] =
+                            (newDict[state.key] ?: 0) + (statesDict[state.key] ?: 0)
                     }
                 } else if (char == '#') {
                     if (state.key + 1 < states.length && states[state.key + 1] == '#') {
-                        newDict[state.key + 1] = (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
+                        newDict[state.key + 1] =
+                            (newDict[state.key + 1] ?: 0) + (statesDict[state.key] ?: 0)
                     }
                 }
             }
             statesDict = newDict
-//            println(statesDict)
             newDict = mutableMapOf()
         }
 
-        return ((statesDict[states.length - 1] ?: 0) + (statesDict[states.length - 2] ?: 0)).toLong()
+        return (statesDict[states.length - 1] ?: 0) + (statesDict[states.length - 2] ?: 0)
     }
 
 
@@ -58,8 +59,6 @@ class Question12 {
         if (repeat > 1) {
             for (i in 0 until repeat - 1)
                 textGroups = "$textGroups,${parts[1]}"
-//            println("$textGroups")
-
         }
         val groups = textGroups.split(",").map { it.toInt() }
 
@@ -67,12 +66,9 @@ class Question12 {
         if (repeat > 1) {
             for (i in 0 until repeat - 1)
                 text = "$text?${parts[0]}"
-//            println(text)
         }
 
 //        combineAllPossibilities(text, groups.toTypedArray())
-
-//        println("$text = ${combinations.size}")
 //        return combinations.size.toLong()
 
         return solutionDFA(text, groups.toTypedArray())
