@@ -19,4 +19,22 @@ class Question13Test {
         )
         assertEquals(40006, result)
     }
+
+    @Test
+    fun checkSample01Part2() {
+        val result = Question13().execute(
+            "src/test/resources/question13-sample01.txt",
+            part2 = true
+        )
+        assertEquals(400, result)
+    }
+
+    @Test
+    fun checkPuzzlePart2() {
+        val result = Question13().execute(
+            "src/test/resources/question13.txt",
+            part2 = true
+        )
+        assertEquals(28627, result)
+    }
 }
