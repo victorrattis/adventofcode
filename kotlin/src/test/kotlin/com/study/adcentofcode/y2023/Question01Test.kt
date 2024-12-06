@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 class Question01Test {
     @Test
     fun checkSample01() {
-        val result = Question01().execute("src/test/resources/question01-sample01.txt")
+        val result = Question01().execute("src/test/resources/day01-sample01.txt")
         assertEquals("142", result)
     }
 
