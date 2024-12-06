@@ -4,7 +4,7 @@ import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
-class Day01 {
+class Question2024Day01 {
     fun execute(filePath: String): String {
         val left: MutableList<Int> = mutableListOf()
         val right: MutableList<Int> = mutableListOf()

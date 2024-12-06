@@ -4,7 +4,7 @@ import java.io.File
 import kotlin.math.abs
 
 @OptIn(ExperimentalStdlibApi::class)
-class Day02 {
+class Question2024Day02 {
     fun execute(filePath: String, isPart2: Boolean = false): String = File(filePath).inputStream().bufferedReader()
         .lines()
         .map { splitToInt(it, " ") }
@@ -13,11 +13,11 @@ class Day02 {
         .toString()
 
     private fun isReportSafe(report: List<Int>, withTolerate: Boolean = false): Boolean {
-        var lastSignal: Boolean? = null // true is positive and false is negative number.
+        var lastIsPositive: Boolean? = null
         return (1..< report.size).all {
             val difference = report[it - 1] - report[it]
-            val signal = isNumberPositive(difference)
-            isSafe(difference, signal, lastSignal).apply { lastSignal = signal } ||
+            val isPositive = difference > 0
+            isSafe(difference, isPositive, lastIsPositive).apply { lastIsPositive = isPositive } ||
                     withTolerate && checkTolerateSingleBadLevel(it, report)
         }
     }
@@ -26,10 +26,8 @@ class Day02 {
         .filter { it >= 0 }
         .any { isReportSafe(dropItem(report, it)) }
 
-    private fun isSafe(diff: Int, signalDiff: Boolean, lastDiff: Boolean?): Boolean =
-        abs(diff) in 1 .. 3 && diff != 0 && (lastDiff == null || lastDiff == signalDiff)
-
-    private fun isNumberPositive(number: Int) = number > 0
+    private fun isSafe(difference: Int, isPositive: Boolean, lastIsPositive: Boolean?): Boolean =
+        abs(difference) in 1 .. 3 && difference != 0 && (lastIsPositive == null || lastIsPositive == isPositive)
 
     private fun splitToInt(text: String, separator: String): List<Int> = text.split(separator).map { it.toInt() }
 
