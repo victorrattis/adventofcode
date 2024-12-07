@@ -1,9 +1,8 @@
 package com.study.adcentofcode.y2024
 
 import java.io.File
-class Question2024Day03 {
-    fun execute(filePath: String, isPart2: Boolean = false): String = File(filePath).inputStream().bufferedReader()
-		.readText()
+class Question2024Day03: Question() {
+    override fun executeInput(input: String, isPart2: Boolean): String = input
         .let { if (isPart2) findMulPatterns2(it) else findMulPatterns(it) }
 		.map { Regex(NUMBER_REGEX).findAll(it).map { it.value.toInt() }.toList() }
 		.sumOf { it.reduce { acc, s -> acc * s } }

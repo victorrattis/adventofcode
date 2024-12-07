@@ -1,23 +1,20 @@
 package com.study.adcentofcode.y2024
 
-import java.io.File
-import kotlin.streams.toList
-
 @OptIn(ExperimentalStdlibApi::class)
-class Question2024Day04 {
+class Question2024Day04: Question() {
 	data class WordFinding(val x: Int, val y: Int, val operation: Int)
 
 	private val operations = listOf(
 		Pair(1, 0), Pair(-1, 0), // horizontal
 		Pair(0, -1), Pair(0, 1), // vertical
-		Pair(1, 1), Pair(1, -1),
-		Pair(-1, 1), Pair(-1, -1)
+		Pair(1, 1), Pair(-1, -1), // diagonal 1
+		Pair(-1, 1), Pair(1, -1)  // diagonal 2
 	)
 
-	fun execute(filePath: String, isPart2: Boolean = false): String = File(filePath).inputStream().bufferedReader()
-		.lines().toList()
-		.let { if (!isPart2) findWordsOnText(it, "XMAS") else findXShapeWord(it, "MAS") }
-		.toString()
+	override fun executeInput(input: String, isPart2: Boolean): String =
+		input.split(System.lineSeparator()).let {
+			if (!isPart2) findWordsOnText(it, "XMAS") else findXShapeWord(it, "MAS")
+		}.toString()
 
 	private fun findWordsOnText(text: List<String>, word: String): Int {
 		var sum = 0
@@ -43,6 +40,10 @@ class Question2024Day04 {
 	private fun getItem(text: List<String>, x: Int, y: Int): Char? =
 		if (y !in text.indices || x !in 0 until text[y].length) null else text[y][x]
 
+	/**
+	 * TODO: This is a GAMBIARRA, improve this code to do better way.
+	 * @param word consider a string of 3 characters of the size.
+	 * */
 	private fun findXShapeWord(text: List<String>, word: String): Int {
 		var sum = 0
 		for (y in 1 until text.size) {

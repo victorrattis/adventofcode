@@ -1,16 +1,14 @@
 package com.study.adcentofcode.y2024
 
-import java.io.File
 import kotlin.math.abs
 
 @OptIn(ExperimentalStdlibApi::class)
-class Question2024Day02 {
-    fun execute(filePath: String, isPart2: Boolean = false): String = File(filePath).inputStream().bufferedReader()
-        .lines()
-        .map { splitToInt(it, " ") }
-        .filter { isReportSafe(it, isPart2) }
-        .count()
-        .toString()
+class Question2024Day02: Question() {
+    override fun executeInput(input: String, isPart2: Boolean): String = input
+        .split(System.lineSeparator())
+		.map { splitToInt(it, " ") }
+        .count { isReportSafe(it, isPart2) }
+		.toString()
 
     private fun isReportSafe(report: List<Int>, withTolerate: Boolean = false): Boolean {
         var lastIsPositive: Boolean? = null

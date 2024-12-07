@@ -4,11 +4,11 @@ import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 
-class Question2024Day01 {
-    fun execute(filePath: String): String {
+class Question2024Day01: Question() {
+    override fun executeInput(input: String, isPart2: Boolean): String {
         val left: MutableList<Int> = mutableListOf()
         val right: MutableList<Int> = mutableListOf()
-        File(filePath).inputStream().bufferedReader().forEachLine {
+        input.split("\n").forEach {
             it.split("   ").let {
                 left.add(it[0].toInt())
                 right.add(it[1].toInt())
