@@ -2,70 +2,96 @@ package com.study.adcentofcode.y2024
 
 class Question2024Day06: Question() {
 	override fun executeInput(input: String, isPart2: Boolean): String = input
-		.split(System.lineSeparator())
-		.let { findSymbolsOnMap(it) }
-		.let { calculateGuardMovementOnMap(it) }
+		.split(System.lineSeparator()).map { it.toCharArray() }
+		.let { if(isPart2) processGuardMovementWithObstruction(it) else processGuardMovement(it) }
 		.toString()
 
-	private fun calculateGuardMovementOnMap(puzzleInput: PuzzleInput): Int {
-		val xFromY: MutableMap<Int, MutableList<Int>> = mutableMapOf()
-		val yFromX: MutableMap<Int, MutableList<Int>> = mutableMapOf()
+	private fun processGuardMovement(map: List<CharArray>): Int {
+		var guardSense = Sense.UP
+		var guardPosition = findSymbolsOnMap(map)
+		val lines = map.size
+		val columns = map[0].size
+		var newPosition: Coordinate = guardPosition
 
-		puzzleInput.obstacles.forEach { coordinate ->
-			if (!yFromX.containsKey(coordinate.y)) yFromX[coordinate.y] = mutableListOf()
-			yFromX[coordinate.y]?.add(coordinate.x)
-			if (!xFromY.containsKey(coordinate.x)) xFromY[coordinate.x] = mutableListOf()
-			xFromY[coordinate.x]?.add(coordinate.y)
-		}
-		xFromY.values.forEach { it.sort() }
-		yFromX.values.forEach { it.sort() }
+		do {
+			val title = map[newPosition.y][newPosition.x]
+			if (title == '#') {
+				guardSense = guardSense.flip()
+			} else {
+				map[newPosition.y][newPosition.x] = 'X'
+				guardPosition = newPosition
+			}
+			newPosition = guardPosition + guardSense.movement
+		} while (newPosition.x in 0 until columns && newPosition.y in 0 until lines)
 
-		println(puzzleInput.guard)
-		println(yFromX)
-		println(xFromY)
+		return map.sumOf { it.count { tile -> tile == 'X' } }
+	}
 
-		var isEnd = false
-		 var distance = 0
+	private fun processGuardMovementWithObstruction(map: List<CharArray>): Int {
+		var guardSense = Sense.UP
+		var guardPosition = findSymbolsOnMap(map)
+		val lines = map.size
+		val columns = map[0].size
+		var newPosition: Coordinate = guardPosition
 
-		// Guard State: UP: 0, Right: 1, Down: 2, Left: 3
-		xFromY[puzzleInput.guard.x].let {
-			it?.find { y -> y < puzzleInput.guard.y }
-				?.let { y -> puzzleInput.guard.y - (y + 1) }
-				?: (puzzleInput.guard.y - 1).apply { isEnd = true;  }
+		val histories: MutableList<Coordinate> = mutableListOf()
 
+		do {
+			val title = map[newPosition.y][newPosition.x]
+			if (title == '#') {
+				map[guardPosition.y][guardPosition.x] = '+'
+				guardSense = guardSense.flip()
+			} else {
+				if (title == '^') {
 
+				} else if (title == '|' && (guardSense == Sense.LEFT || guardSense == Sense.RIGHT)) {
+					map[newPosition.y][newPosition.x] = '+'
+				} else if (title == '-' && (guardSense == Sense.UP || guardSense == Sense.DOWN)) {
+					map[newPosition.y][newPosition.x] = '+'
+				} else {
+					map[newPosition.y][newPosition.x] = when (guardSense) {
+						Sense.UP, Sense.DOWN -> '|'
+						Sense.RIGHT, Sense.LEFT -> '-'
+					}
+				}
+				guardPosition = newPosition
+			}
+			newPosition = guardPosition + guardSense.movement
+		} while (newPosition.x in 0 until columns && newPosition.y in 0 until lines)
 
+		map.forEach {
 			println(it)
 		}
 
-		return 0
+		return 0 //map.sumOf { it.count { tile -> tile == 'X' } }
 	}
 
-	private fun findSymbolsOnMap(map: List<String>): PuzzleInput {
+	private fun findSymbolsOnMap(map: List<CharArray>): Coordinate {
 		var guard: Coordinate? = null
-		val obstacles: MutableList<Coordinate> = mutableListOf()
 		for (y in map.indices) {
-			for (x in 0 until map[y].length) {
+			for (x in 0 until map[y].size) {
 				when (map[y][x]) {
-					'#' -> { obstacles.add(Coordinate(x, y)) }
 					'^' -> { guard = Coordinate(x, y) }
 				}
 			}
 		}
-		return guard?.let { PuzzleInput(it, obstacles) } ?: throw Exception("Guard Coordinate should not null!")
-	}
 
-	enum class Sense(val value: Int) {
-		UP (0),
-		RIGHT(1),
-		DOWN(2),
-		LEFT(3);
+		return guard ?: throw Exception("Guard Coordinate should not null!")
+	}
+	enum class Sense(val value: Int, val movement: Coordinate) {
+		UP(0,    Coordinate(0, -1)),
+		RIGHT(1, Coordinate(1, 0)),
+		DOWN(2,  Coordinate(0, 1)),
+		LEFT(3,  Coordinate(-1, 0));
 		fun flip(): Sense = fromInt((value + 1).let { if (it > 3) 0 else it })
 		companion object {
 			fun fromInt(value: Int) = Sense.values().first { it.value == value }
 		}
 	}
 
-	private data class PuzzleInput(val guard: Coordinate, val obstacles: List<Coordinate>)
-	private data class Coordinate(val x: Int, val y: Int)
+	data class Coordinate(var x: Int, var y: Int) {
+		operator fun plus(increment: Coordinate): Coordinate = Coordinate(
+			x + increment.x, y + increment.y
+		)
+	}
 }

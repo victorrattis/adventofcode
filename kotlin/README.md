@@ -67,3 +67,14 @@ JIT warm-up:
 Day 05 part 1: { time: 1.587750ms, result: ??? }
 Day 05 part 2: { time: 1.808566ms, result: ??? }
 ```
+
+## Day 06
+First time:
+```
+Day 06 part 1: { time: 12.072987ms, result: ??? }
+```
+
+JIT warm-up:
+```
+Day 06 part 1: { time: 389.285us, result: ??? }
+```
