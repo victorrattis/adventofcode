@@ -7,7 +7,7 @@ class Question2024Day05: Question() {
 		detail.pages
 			.filter { isPagesCorrectOrder(detail.rules, it).let { isOrdered -> if(isPart2) !isOrdered else isOrdered } }
 			.map { if (isPart2) orderPages(detail.rules, it) else it }
-			.sumOf { it[it.size / 2] }.toString()
+			.sumOf { it.middle() }.toString()
 	}
 
 	private fun loadInputDetail(input: String): InputDetail {
@@ -56,4 +56,6 @@ class Question2024Day05: Question() {
 		else if (rules[second]?.contains(first) == true) - 1
 		else 0
 	}
+
+	private fun List<Int>.middle() = get(size / 2)
 }

@@ -8,7 +8,7 @@ abstract class Question {
 	fun execute(filePath: String, isPart2: Boolean = false): String =
 		executeInput(getFileContent(filePath), isPart2)
 
-	abstract fun executeInput(input: String, isPart2: Boolean): String
+	protected abstract fun executeInput(input: String, isPart2: Boolean): String
 
 	fun measureExecution(filePath: String, isPart2: Boolean): String {
 		val input = getFileContent(filePath)

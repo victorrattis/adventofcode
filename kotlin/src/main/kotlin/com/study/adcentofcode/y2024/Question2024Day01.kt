@@ -6,6 +6,10 @@ import kotlin.math.min
 
 class Question2024Day01: Question() {
     override fun executeInput(input: String, isPart2: Boolean): String {
+        return if(isPart2) executePart2(input) else executePart1(input)
+    }
+
+    private fun executePart1(input: String): String {
         val left: MutableList<Int> = mutableListOf()
         val right: MutableList<Int> = mutableListOf()
         input.split("\n").forEach {
@@ -24,10 +28,10 @@ class Question2024Day01: Question() {
         return result.toString()
     }
 
-    fun execute2(filePath: String): String {
+    private fun executePart2(input: String): String {
         val left: MutableList<Int> = mutableListOf()
         val numbers: MutableMap<Int, Int> = mutableMapOf()
-        File(filePath).inputStream().bufferedReader().forEachLine { line ->
+        input.split("\n").forEach { line ->
             line.split("   ").let {
                 left.add(it[0].toInt())
                 it[1].toInt().let {
