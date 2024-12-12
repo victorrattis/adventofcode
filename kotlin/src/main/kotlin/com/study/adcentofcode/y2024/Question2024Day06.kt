@@ -3,163 +3,87 @@ package com.study.adcentofcode.y2024
 class Question2024Day06: Question() {
 	override fun executeInput(input: String, isPart2: Boolean): String = input
 		.split(System.lineSeparator()).map { it.toCharArray() }
-		.let { if(isPart2) processGuardMovementWithObstruction(it) else processGuardMovement(it) }
+		.let { processGuardMovement(Grid(it), isPart2) }
 		.toString()
 
-	private fun processGuardMovement(map: List<CharArray>): Int {
-		var guardSense = Sense.UP
-		var guardPosition = findSymbolsOnMap(map)
-		val lines = map.size
-		val columns = map[0].size
-		var newPosition: Coordinate = guardPosition
-
-		do {
-			val title = map[newPosition.y][newPosition.x]
-			if (title == '#') {
-				guardSense = guardSense.flip()
-			} else {
-				map[newPosition.y][newPosition.x] = 'X'
-				guardPosition = newPosition
-			}
-			newPosition = guardPosition + guardSense.movement
-		} while (newPosition.x in 0 until columns && newPosition.y in 0 until lines)
-
-		return map.sumOf { it.count { tile -> tile == 'X' } }
-	}
-
-	private fun processGuardMovementWithObstruction(map: List<CharArray>): Int {
-		var guardSense = Sense.UP
+	private fun processGuardMovement(map: Grid, isPart2: Boolean): Int {
 		val initialPosition = findSymbolsOnMap(map)
+		val guardRoute = processGuardRoute(map, initialPosition)
+		return if(isPart2) { guardRoute.count { checkLoop(map, it, initialPosition) } } else guardRoute.size
+	}
+
+	private fun processGuardRoute(map: Grid, initialPosition: Coordinate): Set<Coordinate> {
+		var guardSense = Direction.UP
 		var guardPosition = initialPosition
-		val lines = map.size
-		val columns = map[0].size
-	  	var newPosition: Coordinate = guardPosition
+		var newPosition = guardPosition
+		val route = mutableSetOf<Coordinate>()
 
-		// contain all the coordinates X in column Y.
-		val xFromY: MutableMap<Int, MutableList<Int>> = mutableMapOf()
-		// contain all the coordinates Y in line X.
-		val yFromX: MutableMap<Int, MutableList<Int>> = mutableMapOf()
-
-		for (y in 0 until lines) {
-			for (x in 0 until columns) {
-				when (map[y][x]) {
-					'#' -> {
-						if (!xFromY.containsKey(y)) xFromY[y] = mutableListOf()
-						xFromY[y]?.add(x)
-						if (!yFromX.containsKey(x)) yFromX[x] = mutableListOf()
-						yFromX[x]?.add(y)
-					}
-				}
-			}
-		}
-		var count = 0
-		var nextSense = guardSense.flip()
 		do {
-			val title = map[newPosition.y][newPosition.x]
-			if (title == '#') {
+			if (map[newPosition.y][newPosition.x] == '#') {
 				guardSense = guardSense.flip()
-				nextSense = guardSense.flip()
 			} else {
-				if (nextSense == Sense.RIGHT) {
-					val isLooped = xFromY[newPosition.y]?.find { x -> newPosition.x < x }
-						?.let { Coordinate(it, newPosition.y) }
-						?.let { obstruction ->
-							if (obstruction + Sense.LEFT.movement != newPosition)
-							checkLoop(map, lines, obstruction + Sense.LEFT.movement, nextSense.flip(), newPosition, guardSense)
-							else null
-						}
-					if (isLooped == true) count++
-				} else if (nextSense == Sense.DOWN) {
-					val isLooped = yFromX[newPosition.x]?.find {y -> newPosition.y < y }
-						?.let { Coordinate(newPosition.x, it) }
-						?.let { obstruction ->
-							if (obstruction + Sense.UP.movement != newPosition)
-							checkLoop(map, lines, obstruction + Sense.UP.movement, nextSense.flip(), newPosition, guardSense)
-							else null
-						}
-					if (isLooped == true) count++
-				} else if (nextSense == Sense.LEFT) {
-					val isLooped = xFromY[newPosition.y]?.find { x -> newPosition.x >x }
-						?.let { Coordinate(it, newPosition.y) }
-						?.let { obstruction ->
-							if (obstruction + Sense.RIGHT.movement != newPosition)
-							checkLoop(map, lines, obstruction + Sense.RIGHT.movement, nextSense.flip(), newPosition, guardSense)
-							else null
-						}
-					if (isLooped == true) count++
-				} else if (nextSense == Sense.UP) {
-					val isLooped = yFromX[newPosition.x]?.find {y -> newPosition.y > y }
-						?.let { Coordinate(newPosition.x, it) }
-						?.let { obstruction ->
-							if (obstruction + Sense.DOWN.movement != newPosition)
-							checkLoop(map, lines, obstruction + Sense.DOWN.movement, nextSense.flip(), newPosition, guardSense)
-							else null
-						}
-
-					if (isLooped == true) count++
-				}
-
+				route.add(newPosition)
 				guardPosition = newPosition
 			}
 			newPosition = guardPosition + guardSense.movement
-		} while (newPosition.x in 0 until lines && newPosition.y in 0 until columns)
+		} while (newPosition.x in 0 until map.columns && newPosition.y in 0 until map.lines)
 
-		return count //map.sumOf { it.count { tile -> tile == 'X' } }
+		return route
 	}
 
-	private fun checkLoop(map: List<CharArray>, size: Int, guardPosition: Coordinate, guardSense: Sense, loop: Coordinate, loopSense: Sense): Boolean {
-		var newPosition: Coordinate = guardPosition
-		var current = guardPosition
-		var currentSense = guardSense
-		var histories: MutableSet<Cache> = mutableSetOf()
+	private fun checkLoop(map: Grid, obstacle: Coordinate, initialPosition: Coordinate): Boolean {
+		var guardSense = Direction.UP
+		var guardPosition = initialPosition
+		var newPosition = guardPosition
+		val histories = mutableSetOf<Pair<Coordinate, Direction>>()
 
 		do {
-			val title = map[newPosition.y][newPosition.x]
-			if (title == '#') {
-				if (histories.contains(Cache(newPosition, currentSense))) {
+			if (map[newPosition.y][newPosition.x] == '#' || newPosition == obstacle) {
+				if (newPosition to guardSense in histories) {
 					return true
 				}
-				histories.add(Cache(newPosition, currentSense))
-				currentSense = currentSense.flip()
+				histories.add(newPosition to guardSense)
+				guardSense = guardSense.flip()
 			} else {
-				current = newPosition
+				guardPosition = newPosition
 			}
-			newPosition = current + currentSense.movement
-
-			if (current == loop && currentSense == loopSense) return true
-		} while (newPosition.x in 0 until size && newPosition.y in 0 until size)
+			newPosition = guardPosition + guardSense.movement
+		} while (newPosition.x in 0 until map.columns && newPosition.y in 0 until map.lines)
 
 		return false
 	}
 
-	private fun findSymbolsOnMap(map: List<CharArray>): Coordinate {
-		var guard: Coordinate? = null
-		for (y in map.indices) {
-			for (x in 0 until map[y].size) {
+	private fun findSymbolsOnMap(map: Grid): Coordinate {
+		for (y in 0 until map.lines) {
+			for (x in 0 until map.columns) {
 				when (map[y][x]) {
-					'^' -> { guard = Coordinate(x, y) }
+					'^' -> return Coordinate(x, y)
 				}
 			}
 		}
-
-		return guard ?: throw Exception("Guard Coordinate should not null!")
+		throw Exception("Guard Coordinate should not null!")
 	}
-	enum class Sense(val value: Int, val movement: Coordinate) {
+
+	enum class Direction(val value: Int, val movement: Coordinate) {
 		UP(0,    Coordinate(0, -1)),
 		RIGHT(1, Coordinate(1, 0)),
 		DOWN(2,  Coordinate(0, 1)),
 		LEFT(3,  Coordinate(-1, 0));
-		fun flip(): Sense = fromInt((value + 1).let { if (it > 3) 0 else it })
+
+		fun flip(): Direction = fromInt((value + 1).let { if (it > 3) 0 else it })
+
 		companion object {
-			fun fromInt(value: Int) = Sense.values().first { it.value == value }
+			fun fromInt(value: Int) = Direction.values().first { it.value == value }
 		}
 	}
 
-	data class Cache(val coord: Coordinate, val sense: Sense)
-
 	data class Coordinate(var x: Int, var y: Int) {
-		operator fun plus(increment: Coordinate): Coordinate = Coordinate(
-			x + increment.x, y + increment.y
-		)
+		operator fun plus(increment: Coordinate): Coordinate = Coordinate(x + increment.x, y + increment.y)
+	}
+
+	data class Grid(val map: List<CharArray>) {
+		val lines = map.size
+		val columns = map[0].size
+		operator fun get(index: Int): CharArray = map[index]
 	}
 }
