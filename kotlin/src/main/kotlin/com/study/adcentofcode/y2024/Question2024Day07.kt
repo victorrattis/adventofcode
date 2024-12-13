@@ -22,15 +22,9 @@ class Question2024Day07: Question() {
 	private fun calculateOperation(numbers: List<Long>, operators: List<OperatorType>): Long =
 		numbers.reduceIndexed { index, acc, i ->
 			when(operators[index - 1]) {
-				OperatorType.ADD -> {
-					acc + i
-				}
-				OperatorType.MULTIPLY -> {
-					acc * i
-				}
-				OperatorType.CONCATENATION -> {
-					"$acc$i".toLong()
-				}
+				OperatorType.ADD -> { acc + i }
+				OperatorType.MULTIPLY -> { acc * i }
+				OperatorType.CONCATENATION -> { "$acc$i".toLong() }
 			}
 		}
 
