@@ -85,10 +85,12 @@ Day 06 part 2: { time: 87.656398ms, result: ??? }
 ## Day 09
 First time:
 ```
-Day 09 part 1: { time: 21.833842ms, result: ??? }
+Day 09 part 1: { time: 21.699219ms, result: ??? }
+Day 09 part 2: { time: 99.157985ms, result: ??? }
 ```
 
 JIT warm-up:
 ```
-Day 09 part 1: { time: 1.497539ms, result: ??? }
+Day 09 part 1: { time: 968.141us, result: ??? }
+Day 09 part 2: { time: 28.634376ms, result: ??? }
 ```
