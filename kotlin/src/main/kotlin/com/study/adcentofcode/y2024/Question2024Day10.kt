@@ -7,18 +7,18 @@ class Question2024Day10: Question() {
 
 		var sum = 0
 		for (i in startPoints.indices) {
-			val result = mutableSetOf<Coordinate>()
+			val result = mutableMapOf<Coordinate, Int>()
 			checkTrailheads(map, startPoints[i], result, 0)
-			sum += result.size
+			sum += if (isPart2) result.entries.sumOf { it.value } else result.size
 		}
 		return sum.toString()
 	}
 
-	private fun checkTrailheads(map: List<IntArray>, current: Coordinate, results: MutableSet<Coordinate>, n: Int) {
+	private fun checkTrailheads(map: List<IntArray>, current: Coordinate, results: MutableMap<Coordinate, Int>, n: Int) {
 		try {
 			if (map[current.x][current.y] != n) return
 			if (map[current.x][current.y] == 9) {
-				results.add(current)
+				results[current] = (results[current] ?: 0) + 1
 				return
 			}
 		} catch (e: IndexOutOfBoundsException) {
