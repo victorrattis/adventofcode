@@ -19,7 +19,7 @@ class Question2024Day07: Question() {
 		return operators.any { expected == calculateOperation(numbers, it) }
 	}
 
-	private fun calculateOperation(numbers: List<Long>, operators: List<OperatorType>): Long =
+	private fun calculateOperation(numbers: List<Long>, operators: Array<OperatorType>): Long =
 		numbers.reduceIndexed { index, acc, i ->
 			when(operators[index - 1]) {
 				OperatorType.ADD -> { acc + i }
@@ -28,16 +28,22 @@ class Question2024Day07: Question() {
 			}
 		}
 
-	private fun permutationsFromList(values: List<OperatorType>, n: Int): List<List<OperatorType>> {
-		if (n == 0) return listOf(emptyList())
-		val result = mutableListOf<List<OperatorType>>()
+	private inline fun <reified T> permutationsFromList(values: List<T>, n: Int): List<Array<T>> {
+		val array = Array(n) { values[0] }
+		val results: MutableList<Array<T>> = mutableListOf()
+		permutationCycle(values, n, array, results, 0)
+		return results
+	}
 
-		for (value in values) {
-			for (subPermutation in permutationsFromList(values, n - 1)) {
-				result.add(listOf(value) + subPermutation)
-			}
+	private fun <T> permutationCycle(values: List<T>, n: Int, array: Array<T>, results: MutableList<Array<T>>, depth: Int) {
+		if (depth == array.size) {
+			results.add(array.copyOf())
+			return
 		}
-		return result
+		for (element in values) {
+			array[depth] = element
+			permutationCycle(values, n, array, results, depth + 1)
+		}
 	}
 
 	enum class OperatorType {

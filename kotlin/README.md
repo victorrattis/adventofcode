@@ -81,6 +81,21 @@ Day 06 part 1: { time: 316.933us, result: ??? }
 Day 06 part 2: { time: 87.656398ms, result: ??? }
 ```
 
+## Day 06
+
+First time:
+```
+Day 07 part 1: { time: 96.887148ms, result: ??? }
+Day 07 part 2: { time: 2.111397677s, result: ??? }
+```
+
+JIT warm-up:
+```
+Day 07 part 1: { time: 25.763382ms, result: ??? }
+Day 07 part 2: { time: 1.857521561s, result: ??? }
+```
+
+
 
 ## Day 09
 First time:
