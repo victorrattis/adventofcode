@@ -109,3 +109,17 @@ JIT warm-up:
 Day 09 part 1: { time: 968.141us, result: ??? }
 Day 09 part 2: { time: 28.634376ms, result: ??? }
 ```
+
+## Day 11
+First time:
+```
+Day 11 part 1: { time: 18.208664ms, result: ??? }
+Day 11 part 2: { time: 51.267630ms, result: ??? }
+```
+
+JIT warm-up:
+```
+Day 11 part 1: { time: 614.845us, result: ??? }
+Day 11 part 2: { time: 20.300041ms, result: ??? }
+```
+
