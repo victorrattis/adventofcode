@@ -123,3 +123,17 @@ Day 11 part 1: { time: 614.845us, result: ??? }
 Day 11 part 2: { time: 20.300041ms, result: ??? }
 ```
 
+## Day 12
+First time:
+```
+Day 12 part 1: { time: 45.182115ms, result: ??? }
+Day 12 part 2: { time: 33.361562ms, result: ??? }
+```
+
+JIT warm-up:
+```
+Day 12 part 1: { time: 4.690855ms, result: ??? }
+Day 12 part 2: { time: 8.605680ms, result: ??? }
+```
+
+

@@ -4,11 +4,95 @@ class Question2024Day12: Question() {
     override fun executeInput(input: String, isPart2: Boolean): String {
         val map: Array<CharArray> = input.split(System.lineSeparator()).map { it.toCharArray() }.toTypedArray()
         val regions = identifyRegions(map)
-        return calculatePrice(regions).toString()
+        return calculatePrice(regions, isPart2).toString()
     }
 
-    private fun calculatePrice(regions: Map<Char, MutableList<Set<Coordinate>>>): Int =
-        regions.values.sumOf { it.sumOf { it.size * calculatePerimeter(it) } }
+    private fun calculatePrice(regions: Map<Char, MutableList<Set<Coordinate>>>, isPart2: Boolean): Int =
+        regions.values.sumOf { it.sumOf { it.size * if (isPart2) calculateSides(it) else calculatePerimeter(it) } }
+
+    private fun calculateSides(region: Set<Coordinate>): Int {
+        val sides = mutableMapOf<Coordinate, MutableSet<MutableSet<Coordinate>>>()
+
+        fun containPoint(side: Coordinate, point: Coordinate): Boolean {
+            return sides[side]?.any { it.contains(point) } == true
+        }
+
+        region.forEach {
+            if (!region.contains(it + Coordinate.LEFT) && !containPoint(Coordinate.LEFT, it)) {
+                val points = mutableSetOf<Coordinate>()
+                points.add(it)
+                var next = it + Coordinate.UP
+                while (region.contains(next) && !region.contains(next + Coordinate.LEFT)) {
+                    points.add(next)
+                    next += Coordinate.UP
+                }
+                next = it + Coordinate.DOWN
+                while (region.contains(next) && !region.contains(next + Coordinate.LEFT)) {
+                    points.add(next)
+                    next += Coordinate.DOWN
+                }
+
+                if (!sides.containsKey(Coordinate.LEFT)) sides[Coordinate.LEFT] = mutableSetOf()
+                sides[Coordinate.LEFT]?.add(points)
+            }
+
+            if (!region.contains(it + Coordinate.RIGHT) && !containPoint(Coordinate.RIGHT, it)) {
+                val points = mutableSetOf<Coordinate>()
+                points.add(it)
+                var next = it + Coordinate.UP
+                while (region.contains(next) && !region.contains(next + Coordinate.RIGHT)) {
+                    points.add(next)
+                    next += Coordinate.UP
+                }
+                next = it + Coordinate.DOWN
+                while (region.contains(next) && !region.contains(next + Coordinate.RIGHT)) {
+                    points.add(next)
+                    next += Coordinate.DOWN
+                }
+
+                if (!sides.containsKey(Coordinate.RIGHT)) sides[Coordinate.RIGHT] = mutableSetOf()
+                sides[Coordinate.RIGHT]?.add(points)
+            }
+
+            if (!region.contains(it + Coordinate.DOWN) && !containPoint(Coordinate.DOWN, it)) {
+                val points = mutableSetOf<Coordinate>()
+                points.add(it)
+                var next = it + Coordinate.RIGHT
+                while (region.contains(next) && !region.contains(next + Coordinate.DOWN)) {
+                    points.add(next)
+                    next += Coordinate.RIGHT
+                }
+                next = it + Coordinate.LEFT
+                while (region.contains(next) && !region.contains(next + Coordinate.DOWN)) {
+                    points.add(next)
+                    next += Coordinate.LEFT
+                }
+
+                if (!sides.containsKey(Coordinate.DOWN)) sides[Coordinate.DOWN] = mutableSetOf()
+                sides[Coordinate.DOWN]?.add(points)
+            }
+
+            if (!region.contains(it + Coordinate.UP) && !containPoint(Coordinate.UP, it)) {
+                val points = mutableSetOf<Coordinate>()
+                points.add(it)
+                var next = it + Coordinate.RIGHT
+                while (region.contains(next) && !region.contains(next + Coordinate.UP)) {
+                    points.add(next)
+                    next += Coordinate.RIGHT
+                }
+                next = it + Coordinate.LEFT
+                while (region.contains(next) && !region.contains(next + Coordinate.UP)) {
+                    points.add(next)
+                    next += Coordinate.LEFT
+                }
+
+                if (!sides.containsKey(Coordinate.UP)) sides[Coordinate.UP] = mutableSetOf()
+                sides[Coordinate.UP]?.add(points)
+            }
+        }
+
+        return sides.values.sumOf { it.size }
+    }
 
     private fun calculatePerimeter(region: Set<Coordinate>): Int = region.sumOf {
         var perimeter =0
