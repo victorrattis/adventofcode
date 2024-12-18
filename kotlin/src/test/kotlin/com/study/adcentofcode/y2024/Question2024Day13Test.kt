@@ -20,12 +20,12 @@ class Question2024Day13Test {
 	@Test
 	fun testSample01Part2() {
 		val result = Question2024Day13().execute("src/test/resources/y2024/day13-sample01.txt", isPart2 = true)
-		Assertions.assertEquals("100", result)
+		Assertions.assertEquals("875318608908", result)
 	}
 
 	@Test
 	fun testInput01Part2() {
 		val result = Question2024Day13().execute("src/test/resources/y2024/day13-input01.txt", isPart2 = true)
-		Assertions.assertEquals("0", result)
+		Assertions.assertEquals("88584689879723", result)
 	}
 }

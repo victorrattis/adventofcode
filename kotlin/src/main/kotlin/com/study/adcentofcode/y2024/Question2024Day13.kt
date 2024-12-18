@@ -1,52 +1,49 @@
 package com.study.adcentofcode.y2024
 
-import kotlin.math.absoluteValue
-
 class Question2024Day13: Question() {
-	override fun executeInput(input: String, isPart2: Boolean): String {
-		val iterator = input.split(System.lineSeparator()).iterator()
+	override fun executeInput(input: String, isPart2: Boolean): String =
+		convertToClawMachines(input.split(System.lineSeparator()))
+			.map { if (isPart2) errorConversionIntoPrize(it) else it }
+			.mapNotNull { calculateTimes(it.buttonA, it.buttonB, it.prize) }
+			.sumOf { it.first * 3 + it.second }
+			.toString()
 
+	private fun convertToClawMachines(lines: List<String>): List<ClawMachine> {
 		val clawMachines = mutableListOf<ClawMachine>()
+		val iterator = lines.iterator()
 		while (iterator.hasNext()) {
 			clawMachines.add(ClawMachine.parse(iterator.next(), iterator.next(), iterator.next()))
 			if (iterator.hasNext()) iterator.next()
 		}
-
-		val tokens = mutableListOf<Long>()
-		clawMachines.forEach {
-			val prize = if (isPart2) it.Prize.copy(it.Prize.x + 10000000000000, it.Prize.y + 10000000000000) else it.Prize
-			println(prize)
-			calculateToken(it.buttonA.x, it.buttonA.y, it.buttonB.x, it.buttonB.y, prize.x, prize.y)?.let {
-				tokens.add(it.first * 3 + it.second)
-			}
-		}
-
-		return tokens.sum().toString()
+		return clawMachines
 	}
 
-	private fun calculateToken(xa: Long, ya: Long, xb: Long, yb: Long, xPrize: Long, yPrize: Long): Pair<Long, Long>? {
-		val a = ((xPrize*yb) - (xb*yPrize)) / ((yb*xa) - (xb*ya)).toFloat()
-		val b = (yPrize - (ya * a)) / yb.toFloat()
-		println("A: $a, B: $b")
-		println("A: ${a % 1.0 == 0.0}, B: ${b % 1.0 == 0.0}")
-		println("A: ${a.absoluteValue % 1.0 >= 0.005}, B: ${b.absoluteValue % 1.0 >= 0.005}")
-		println("A: ${factor100(a)}, B: ${factor100(b)}")
+	private fun errorConversionIntoPrize(claw: ClawMachine): ClawMachine =
+		claw.copy(prize = Coordinate(claw.prize.x + 10000000000000, claw.prize.y + 10000000000000))
 
-		return if (a % 1.0 == 0.0 && b % 1.0 == 0.0) (a.toLong() to b.toLong()) else null
+	private fun calculateTimes(buttonA: Coordinate, buttonB: Coordinate, prize: Coordinate): Pair<Long, Long>? {
+		val a = (((prize.x*buttonB.y) - (buttonB.x*prize.y)) / ((buttonB.y*buttonA.x) - (buttonB.x*buttonA.y)))
+		val b = (prize.y - (buttonA.y * a)) / buttonB.y
+
+		val aRem = ((prize.x*buttonB.y) - (buttonB.x*prize.y)) % ((buttonB.y*buttonA.x) - (buttonB.x*buttonA.y))
+		val bRem = (prize.y - (buttonA.y * a)) % buttonB.y
+
+		return if (aRem == 0L && bRem == 0L) a to b else null
 	}
 
-	fun factor100(n: Number) = n.toDouble() % 10000000000000.0 == 0.0
-
-	private data class ClawMachine(val buttonA: Coordinate, val buttonB: Coordinate, val Prize: Coordinate) {
+	private data class ClawMachine(val buttonA: Coordinate, val buttonB: Coordinate, val prize: Coordinate) {
 		companion object {
 			fun parse(buttonA: String, buttonB: String, prize: String): ClawMachine = ClawMachine(
 				parseCoordinate(buttonA), parseCoordinate(buttonB), parseCoordinate(prize)
 			)
-
 			private fun parseCoordinate(value: String) =
-				Regex("[0-9]+").findAll(value).map { it.value.toLong() }.toList().let { Coordinate(it[0], it[1]) }
+				Regex(NUMBER_REGEX).findAll(value).map { it.value.toLong() }.toList().let { Coordinate(it[0], it[1]) }
 		}
 	}
 
 	private data class Coordinate(val x: Long, val y: Long)
+
+	companion object {
+		const val NUMBER_REGEX = "[0-9]+"
+	}
 }

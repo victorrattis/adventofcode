@@ -136,4 +136,18 @@ Day 12 part 1: { time: 4.690855ms, result: ??? }
 Day 12 part 2: { time: 8.605680ms, result: ??? }
 ```
 
+## Day 13
+First time:
+```
+Day 13 part 1: { time: 34.320544ms, result: ??? }
+Day 13 part 2: { time: 2.879238ms, result: ??? }
+```
+
+JIT warm-up:
+```
+Day 13 part 1: { time: 1.267706ms, result: ??? }
+Day 13 part 2: { time: 1.060427ms, result: ??? }
+```
+
+
 
