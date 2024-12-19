@@ -83,10 +83,6 @@ class Question2024Day14: Question() {
 			fun parse(text: String): Coordinate {
 				return text.split("=")[1].split(",").map { it.toInt() }.let { Coordinate(it[0], it[1]) }
 			}
-			val UP = Coordinate(0, -1)
-			val DOWN = Coordinate(0, 1)
-			val RIGHT = Coordinate(1, 0)
-			val LEFT = Coordinate(-1, 0)
 		}
 	}
 }
