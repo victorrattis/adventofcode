@@ -22,6 +22,11 @@ class Question2024Day15Test {
 		Assertions.assertEquals("1492518", result)
 	}
 
+	@Test
+	fun testSample03Part2() {
+		val result = Question2024Day15().execute("src/test/resources/y2024/day15-sample03.txt", isPart2 = true)
+		Assertions.assertEquals("618", result)
+	}
 
 	@Test
 	fun testSample02Part2() {
@@ -29,4 +34,9 @@ class Question2024Day15Test {
 		Assertions.assertEquals("9021", result)
 	}
 
+	@Test
+	fun testInput01Part2() {
+		val result = Question2024Day15().execute("src/test/resources/y2024/day15-input01.txt", isPart2 = true)
+		Assertions.assertEquals("1512860", result)
+	}
 }
