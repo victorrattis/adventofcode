@@ -1,5 +1,7 @@
 package com.study.adcentofcode.y2024
 
+import java.util.PriorityQueue
+
 class Question2024Day16: Question() {
 	override fun executeInput(input: String, isPart2: Boolean): String {
 		val maze = input.split(System.lineSeparator()).map { it.toCharArray() }
@@ -15,44 +17,40 @@ class Question2024Day16: Question() {
 			}
 		}
 
-		var nextPaths = mutableListOf<Path>()
-		var paths: List<Path> = listOf(Path(startPoint, Coordinate.RIGHT, 0, if (isPart2) mutableListOf() else null))
+		val paths = PriorityQueue<Path>(compareBy { it.score })
+		paths.add(Path(startPoint, Coordinate.RIGHT, 0, if (isPart2) mutableListOf() else null))
 		val scorePerCoordinate = mutableMapOf<Pair<Coordinate, Coordinate>, Int>().withDefault { Int.MAX_VALUE }
 
 		var lowestScore = Int.MAX_VALUE
-		val counts = mutableListOf<Pair<Int, List<Coordinate>>>()
+		val scores = mutableListOf<Pair<Int, List<Coordinate>>>()
 
 		while (paths.isNotEmpty()) {
-			for ((current, direction, score, visited) in paths) {
-				if (current == endPoint) {
-					if (lowestScore > score) lowestScore = score
-					visited?.let { counts.add(score to visited) }
-					continue
-				}
-
-				if (score > scorePerCoordinate.getValue(current to direction)) continue
-				scorePerCoordinate[current to direction] = score
-
-				if (isTileFree(current + direction)) {
-					val nextVisited = visited?.toMutableList().also { it?.add(current) }
-					nextPaths.add(Path(current + direction, direction, score + 1, nextVisited))
-				}
-
-				for (nexDirection in Coordinate.moves[direction]!!) {
-					val next = current + nexDirection
-					if (isTileFree(next)) {
-						val nextVisited = visited?.toMutableList().also { it?.add(current) }
-						nextPaths.add(Path(next, nexDirection, score + 1001, nextVisited))
-					}
-				}
+			val (current, direction, score, visited) = paths.poll()
+			if (current == endPoint) {
+				if (lowestScore > score) lowestScore = score
+				visited?.let { scores.add(score to visited) }
+				continue
 			}
 
-			paths = nextPaths
-			nextPaths = mutableListOf()
+			if (score > scorePerCoordinate.getValue(current to direction)) continue
+			scorePerCoordinate[current to direction] = score
+
+			if (isTileFree(current + direction)) {
+				val nextVisited = visited?.toMutableList().also { it?.add(current) }
+				paths.add(Path(current + direction, direction, score + 1, nextVisited))
+			}
+
+			for (nexDirection in Coordinate.moves[direction]!!) {
+				val next = current + nexDirection
+				if (isTileFree(next)) {
+					val nextVisited = visited?.toMutableList().also { it?.add(current) }
+					paths.add(Path(next, nexDirection, score + 1001, nextVisited))
+				}
+			}
 		}
 
 		return if (isPart2 ) {
-			counts.filter { it.first == lowestScore }.flatMap { it.second }.distinct().count().let { it + 1 }.toString()
+			scores.filter { it.first == lowestScore }.flatMap { it.second }.distinct().count().let { it + 1 }.toString()
 		} else {
 			lowestScore.toString()
 		}
