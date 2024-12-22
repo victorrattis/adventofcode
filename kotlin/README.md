@@ -162,6 +162,17 @@ Day 15 part 1: { time: 910.614us, result: ??? }
 Day 15 part 2: { time: 216.417112ms, result: ??? }
 ```
 
+## Day 16
+First time:
+```
+Day 16 part 1: { time: 104.468922ms, result: ??? }
+Day 16 part 2: { time: 242.861398ms, result: ??? }
+```
 
+JIT warm-up:
+```
+Day 16 part 1: { time: 18.360308ms, result: ??? }
+Day 16 part 2: { time: 96.363131ms, result: ??? }
+```
 
 
