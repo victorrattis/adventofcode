@@ -5,116 +5,74 @@ import kotlin.math.pow
 class Question2024Day17: Question() {
 	override fun executeInput(input: String, isPart2: Boolean): String {
 		val iterator = input.split(System.lineSeparator()).iterator()
-		val a = iterator.next().split(": ")[1].trim().toInt()
-		val b = iterator.next().split(": ")[1].trim().toInt()
-		val c = iterator.next().split(": ")[1].trim().toInt()
+		val a = iterator.next().split(": ")[1].trim().toLong()
+		val b = iterator.next().split(": ")[1].trim().toLong()
+		val c = iterator.next().split(": ")[1].trim().toLong()
 		iterator.next()
 		val resultProgram = iterator.next().split(": ")[1].trim()
 		val programs = resultProgram.split(",").map { it.toInt() }
 		val state = ComputerState(a, b, c)
 
-		return if (isPart2) {
-//
-//			for (i in 0..117440){
-				processPart1(state.copy(a = 1317458136), "2,4,1,5,7,5,1,6,4,1,5,5,0,3,3,0".split(",").map { it.toInt() }).let { println(it) }
+		return if (isPart2) { processPart2(programs) } else { processPart1(state, programs) }
+	}
 
-//			}
-
-			val a = ComputerState(0, 0, 0)
-			listOf(2,4,1,5,7,5,1,6,4,1,5,5,0,3,3,0).forEach {
-//				listOf(2,4,1,5,7,5,1,6,4,1,5,5,0,3).reversed().forEach {  }
-//				2,4,
-				//				1,5,
-				//				7,5,
-				//				1,6,
-				//				4,1,
-				//				5,5,
-				//				0,3
-
-				inverseInstructions(a, 0, 3, it)
-				inverseInstructions(a, 5, 5, it)
-				inverseInstructions(a, 1, 6, it)
-				inverseInstructions(a, 7, 5, it)
-				inverseInstructions(a, 1, 5, it)
-				inverseInstructions(a, 2, 4, it)
+	private fun processPart2(programs: List<Int>): String  {
+		var current: Long = 8
+		do {
+			val result = ComputerState(current)
+			result.execute(programs)
+			if (programs.takeLast(result.out.size) == result.out) {
+				if (programs == result.out) break
+				current = current shl 3
+			} else {
+				current++
 			}
-			println(a)
-
-			a.a.toString()
-		} else {
-			processPart1(state, programs)
-		}
+		} while (true)
+		return current.toString()
 	}
 
-	private fun processPart1(state: ComputerState, programs: List<Int>): String {
-		while (state.pointer < programs.size) {
-			executeInstruction(
-				state,
-				programs[state.pointer],
-				programs[state.pointer + 1]
-			)
-		}
-		return state.out.joinToString(",")
-	}
+	private fun processPart1(state: ComputerState, programs: List<Int>): String =
+		state.also { it.execute(programs) }.out.joinToString(",")
 
-	private fun inverseInstructions(state: ComputerState, opcode: Int, operand: Int, out: Int) {
-		when(opcode) {
-			0 -> {
-				if (state.a == 0) {
-					state.a = 1
-				} else {
-					state.a *= 2.0.pow(getOperandValue(state, operand).toDouble()).toInt()
+	data class ComputerState(
+		var a: Long,
+		var b: Long = 0,
+		var c: Long = 0,
+		var pointer: Int = 0,
+		var out: MutableList<Int> = mutableListOf()
+	) {
+		fun execute(programs: List<Int>) {
+			while (pointer < programs.size) {
+				executeInstruction(programs[pointer], programs[pointer + 1])
+			}
+		}
+
+		private fun executeInstruction(opcode: Int, operand: Int) {
+			when(opcode) {
+				0 -> { a = (a / (2.0.pow(getOperandValue(operand).toDouble()))).toLong() }
+				1 -> { b = b.xor(operand.toLong()) }
+				2 -> { b = getOperandValue(operand) % 8 }
+				3 -> {
+					if (a != 0L) {
+						pointer = operand
+						return
+					}
 				}
+				4 -> { b = b.xor(c) }
+				5 -> { out.add((getOperandValue(operand) % 8).toInt()) }
+				6 -> { b = (a / (2.0.pow(getOperandValue(operand).toDouble()))).toLong() }
+				7 -> { c = (a / (2.0.pow(getOperandValue(operand).toDouble()))).toLong() }
+				else -> {}
 			}
-			1 -> {
-				state.b = operand.xor(state.b)
-			}
-			2 -> {
+			pointer += 2
+		}
 
-				state.b = getOperandValue(state, operand) * 8
-//				state.b = getOperandValue(state, operand) % 8
-			}
-			4 -> {
-				state.b = state.c.xor(state.b)
-			}
-			5 -> {
-				state.a += out - (state.a % 8)
-			}
-			7 -> {
-				state.c = state.a * 2.0.pow(getOperandValue(state, operand).toDouble()).toInt()
-//				state.c = (state.a / (2.0.pow(getOperandValue(state, operand).toDouble()))).toInt()
-			}
-			else -> {}
+		private fun getOperandValue(operand: Int): Long = when(operand) {
+			0, 1, 2, 3 -> operand.toLong()
+			4 -> a
+			5 -> b
+			6 -> c
+			else -> throw Exception("This is not valid program!")
 		}
 	}
-
-	private fun executeInstruction(state: ComputerState, opcode: Int, operand: Int) {
-		when(opcode) {
-			0 -> { state.a = (state.a / (2.0.pow(getOperandValue(state, operand).toDouble()))).toInt() }
-			1 -> { state.b = state.b.xor(operand) }
-			2 -> { state.b = getOperandValue(state, operand) % 8 }
-			3 -> {
-				if (state.a != 0) {
-					state.pointer = operand
-					return
-				}
-			}
-			4 -> { state.b = state.b.xor(state.c) }
-			5 -> { state.out.add(getOperandValue(state, operand) % 8) }
-//			6 -> { state.b = (state.a / (2.0.pow(getOperandValue(state, operand).toDouble()))).toInt() }
-			7 -> { state.c = (state.a / (2.0.pow(getOperandValue(state, operand).toDouble()))).toInt() }
-			else -> {}
-		}
-		state.pointer += 2
-	}
-
-	private fun getOperandValue(state: ComputerState, operand: Int): Int  = when(operand) {
-		0, 1, 2, 3 -> operand
-		4 -> state.a
-		5 -> state.b
-		6 -> state.c
-		else -> throw Exception("This is not valid program!")
-	}
-
-	data class ComputerState(var a: Int, var b: Int, var c: Int, var pointer: Int = 0, var out: MutableList<Int> = mutableListOf())
 }

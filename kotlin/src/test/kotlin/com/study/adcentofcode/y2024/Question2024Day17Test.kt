@@ -25,6 +25,6 @@ class Question2024Day17Test {
 	@Test
 	fun testInput1Part2() {
 		val result = Question2024Day17().execute("src/test/resources/y2024/day17-input01.txt", isPart2 = true)
-		Assertions.assertEquals("", result)
+		Assertions.assertEquals("107413700225434", result)
 	}
 }
