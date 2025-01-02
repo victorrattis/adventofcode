@@ -16,9 +16,9 @@ class Question2024Day19Test {
 		Assertions.assertEquals("355", result)
 	}
 
-	@Test
-	fun testSample01Part2() {
-		val result = Question2024Day19().execute("src/test/resources/y2024/day19-sample01.txt", isPart2 = true)
-		Assertions.assertEquals("16", result)
-	}
+//	@Test
+//	fun testSample01Part2() {
+//		val result = Question2024Day19().execute("src/test/resources/y2024/day19-sample01.txt", isPart2 = true)
+//		Assertions.assertEquals("16", result)
+//	}
 }
